@@ -9,7 +9,7 @@ export async function GET() {
                 
                 roles: {
                     include: {
-                        role: true 
+                        role: true,
                     }
                 }
             }
