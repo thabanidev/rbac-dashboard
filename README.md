@@ -6,7 +6,7 @@ The RBAC Dashboard is a role-based access control system built with Next.js and 
 
 ## Demo
 
-You can view a live demo of the  [RBAC Dashboard here](https://rbac-dashboard.vercel.app).
+You can view a live demo of the  [RBAC Dashboard here](https://rbac-dashboard-mu.vercel.app).
 
 ## Getting Started
 
