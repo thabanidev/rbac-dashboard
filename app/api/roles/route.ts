@@ -6,16 +6,11 @@ export async function GET() {
   try {
     const roles = await prisma.role.findMany({
       include: {
-        UserRole: {
-          include: {
-            user: true,
-          },
-        },
-        RolePermission: {
-          include: {
+        permissions: {
+          select: {
             permission: true,
-          },
-        },
+          }
+        }
       },
     });
 
@@ -42,7 +37,7 @@ export async function POST(request: Request) {
     const newRole = await prisma.role.create({
       data: {
         name,
-        RolePermission: {
+        permissions: {
           create: permissions?.map((permissionId: string) => ({
             permission: {
               connect: { id: permissionId },
@@ -51,7 +46,7 @@ export async function POST(request: Request) {
         },
       },
       include: {
-        RolePermission: {
+        permissions: {
           include: {
             permission: true,
           },
@@ -123,7 +118,7 @@ export async function PUT(request: Request) {
       where: { id },
       data: {
         name,
-        RolePermission: {
+        permissions: {
           create: permissions?.map((permissionId: string) => ({
             permission: {
               connect: { id: permissionId },
@@ -132,7 +127,7 @@ export async function PUT(request: Request) {
         },
       },
       include: {
-        RolePermission: {
+        permissions: {
           include: {
             permission: true,
           },
