@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import {
@@ -25,19 +25,15 @@ import { Label } from "@/components/ui/label";
 import { usePermissions } from "@/hooks/usePermissions";
 
 export default function PermissionsPage() {
-  const [permissions, setPermissions] = useState([]);
+  const [permissions, setPermissions] = useState<{ id: string; name: string }[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [newPermission, setNewPermission] = useState({ name: "" });
-  const [editingPermission, setEditingPermission] = useState(null);
+  const [editingPermission, setEditingPermission] = useState<{ id: string; name: string } | null>(null);
   const { checkPermission, isLoading: isLoadingPermissions } = usePermissions();
   const { toast } = useToast();
 
-  useEffect(() => {
-    fetchPermissions();
-  }, []);
-
-  const fetchPermissions = async () => {
+  const fetchPermissions = useCallback(async () => {
     try {
       const response = await fetch("/api/permissions");
       const data = await response.json();
@@ -51,7 +47,11 @@ export default function PermissionsPage() {
         variant: "destructive",
       });
     }
-  };
+  }, [toast]);
+
+  useEffect(() => {
+    fetchPermissions();
+  }, [fetchPermissions]);
 
   const handleCreatePermission = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -82,6 +82,7 @@ export default function PermissionsPage() {
   const handleEditPermission = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
+      if (!editingPermission) return;
       const response = await fetch(`/api/permissions/${editingPermission.id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
@@ -185,7 +186,7 @@ export default function PermissionsPage() {
           </TableRow>
         </TableHeader>
         <TableBody>
-          {permissions.map((permission: any) => (
+          {permissions.map((permission) => (
             <TableRow key={permission.id}>
               <TableCell>{permission.name}</TableCell>
               <TableCell>

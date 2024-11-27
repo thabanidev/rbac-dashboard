@@ -1,6 +1,7 @@
 import { jwtVerify, SignJWT } from 'jose'
 import { cookies } from 'next/headers'
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export async function createToken(payload: any) {
   const secret = new TextEncoder().encode(
     process.env.JWT_SECRET || '1234'

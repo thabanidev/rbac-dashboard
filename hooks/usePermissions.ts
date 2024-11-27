@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState, useEffect } from 'react'
 
 export function usePermissions() {
@@ -13,7 +14,8 @@ export function usePermissions() {
         }
         
         const userData = await response.json()
-        const userPermissions = userData.roles.flatMap((role: any) => 
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const userPermissions: string[] = userData.roles.flatMap((role: any) => 
           role.role.permissions.map((p: any) => p.permission.name)
         )
         
