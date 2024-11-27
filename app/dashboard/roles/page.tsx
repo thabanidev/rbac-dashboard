@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import {
@@ -30,17 +30,18 @@ export default function RolesPage() {
   const [permissions, setPermissions] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [newRole, setNewRole] = useState({ name: "", permissions: [] });
-  const [editingRole, setEditingRole] = useState(null);
+  const [newRole, setNewRole] = useState<{ name: string; permissions: string[] }>({ name: "", permissions: [] });
+  interface Role {
+    id: string;
+    name: string;
+    permissions: string[];
+  }
+  
+  const [editingRole, setEditingRole] = useState<Role | null>(null);
   const { checkPermission, isLoading: isLoadingPermissions } = usePermissions();
   const { toast } = useToast();
 
-  useEffect(() => {
-    fetchRoles();
-    fetchPermissions();
-  }, []);
-
-  const fetchRoles = async () => {
+  const fetchRoles = useCallback(async () => {
     try {
       const response = await fetch("/api/roles");
       const data = await response.json();
@@ -54,22 +55,29 @@ export default function RolesPage() {
         variant: "destructive",
       });
     }
-  };
+  }, [toast]);
 
-  const fetchPermissions = async () => {
-    try {
-      const response = await fetch("/api/permissions");
-      const data = await response.json();
-      setPermissions(data);
-    } catch (error) {
-      console.error("Error fetching permissions:", error);
-      toast({
-        title: "Error",
-        description: "Failed to fetch permissions. Please try again.",
-        variant: "destructive",
-      });
-    }
-  };
+  
+
+  useEffect(() => {
+    const fetchPermissions = async () => {
+      try {
+        const response = await fetch("/api/permissions");
+        const data = await response.json();
+        setPermissions(data);
+      } catch (error) {
+        console.error("Error fetching permissions:", error);
+        toast({
+          title: "Error",
+          description: "Failed to fetch permissions. Please try again.",
+          variant: "destructive",
+        });
+      }
+    };
+
+    fetchRoles();
+    fetchPermissions();
+  }, [fetchRoles, toast]);
 
   const handleCreateRole = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -101,6 +109,7 @@ export default function RolesPage() {
 
   const handleEditRole = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!editingRole) return;
     try {
       const response = await fetch(`/api/roles/${editingRole.id}`, {
         method: "PUT",
@@ -194,7 +203,7 @@ export default function RolesPage() {
                 <div className="grid grid-cols-4 items-start gap-4">
                   <Label className="text-right">Permissions</Label>
                   <div className="col-span-3 space-y-2">
-                    {permissions.map((permission: any) => (
+                    {permissions.map((permission: { id: string; name: string }) => (
                       <div key={permission.id} className="flex items-center space-x-2">
                         <Checkbox
                           id={`permission-${permission.id}`}
@@ -243,10 +252,12 @@ export default function RolesPage() {
           </TableRow>
         </TableHeader>
         <TableBody>
-          {roles.map((role: any) => (
+          {roles.map((role: Role) => (
             <TableRow key={role.id}>
               <TableCell>{role.name}</TableCell>
               <TableCell>
+                
+          {/* eslint-disable-next-line @typescript-eslint/no-explicit-any*/}
                 {role.permissions.map((p: any) => p.permission.name).join(", ")}
               </TableCell>
               <TableCell>

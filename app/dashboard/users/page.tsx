@@ -36,8 +36,17 @@ export default function UsersPage() {
   const [roles, setRoles] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [newUser, setNewUser] = useState({ name: "", email: "", password: "", roleIds: [] });
-  const [editingUser, setEditingUser] = useState(null);
+  const [newUser, setNewUser] = useState<{ name: string; email: string; password: string; roleIds: string[] }>({ name: "", email: "", password: "", roleIds: [] });
+  interface User {
+    id: string;
+    name: string;
+    email: string;
+    password: string;
+    roleIds: string[];
+    roles: { role: { id: string, name: string } }[];
+  }
+  
+  const [editingUser, setEditingUser] = useState<User | null>(null);
   const { checkPermission, isLoading: isLoadingPermissions } = usePermissions();
   const { toast } = useToast();
   
@@ -109,6 +118,7 @@ export default function UsersPage() {
 
   const handleEditUser = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!editingUser) return;
     try {
       const response = await fetch(`/api/users/${editingUser.id}`, {
         method: "PUT",
@@ -244,7 +254,7 @@ export default function UsersPage() {
                       <SelectValue placeholder="Select a role" />
                     </SelectTrigger>
                     <SelectContent>
-                      {roles.map((role: any) => (
+                      {roles.map((role: { id: string; name: string }) => (
                         <SelectItem key={role.id} value={role.id}>
                           {role.name}
                         </SelectItem>
@@ -270,12 +280,12 @@ export default function UsersPage() {
           </TableRow>
         </TableHeader>
         <TableBody>
-          {users.map((user: any) => (
+          {users.map((user: User) => (
             <TableRow key={user.id}>
               <TableCell>{user.name}</TableCell>
               <TableCell>{user.email}</TableCell>
               <TableCell>
-                {user.roles.map((role: any) => role.role.name).join(", ")}
+                {user.roles.map((role: { role: { name: string } }) => role.role.name).join(", ")}
               </TableCell>
               <TableCell>
                 {checkPermission("update_user") && (

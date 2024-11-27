@@ -24,7 +24,7 @@ You can view a live demo of the  [RBAC Dashboard here](https://rbac-dashboard.ve
 
 ## Roles and Permissions
 
-### Permissions
+### Permission Management
 
 - `create_user`: Create new users
 - `read_user`: Read user information
@@ -34,7 +34,7 @@ You can view a live demo of the  [RBAC Dashboard here](https://rbac-dashboard.ve
 - `manage_permissions`: Manage permissions
 - `view_dashboard`: View dashboard statistics
 
-### Roles
+### Role Management
 
 - **Super Admin**: All permissions
 - **Admin**: All permissions except `manage_permissions`

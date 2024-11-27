@@ -29,8 +29,8 @@ export function Sidebar() {
       try {
         const response = await fetch("/api/auth/me");
         const userData = await response.json();
-        const permissions = userData.roles.flatMap((role: any) => 
-          role.role.permissions.map((p: any) => p.permission.name)
+        const permissions: string[] = userData.roles.flatMap((role: { role: { permissions: { permission: { name: string } }[] } }) => 
+          role.role.permissions.map((p: { permission: { name: string } }) => p.permission.name)
         );
         setUserPermissions([...new Set(permissions)]);
       } catch (error) {
